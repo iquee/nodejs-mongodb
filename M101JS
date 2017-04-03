@@ -1,0 +1,117 @@
+mongodb for node.js devs
+
+Operations:
+INSERT:
+	// one: 
+		db.collection.insertOne({ "title": "Rocky", "year": "1976", "imdb": "tt0075148"});
+
+	// many, ordered, change _id:
+		db.moviesScratch
+			.insertMany([
+			        {
+				    "_id" : "tt0084726",
+				    "title" : "Star Trek II: The Wrath of Khan",
+				    "year" : 1982,
+				    "type" : "movie"
+			        },
+			        {
+				    "_id" : "tt0796366",
+				    "title" : "Star Trek",
+				    "year" : 2009,
+				    "type" : "movie"
+			        }
+			    ]
+			);
+
+	// many, unordered, change _id: 
+		db.moviesScratch.
+			insertMany([
+			        {
+				    "_id" : "tt0084726",
+				    "title" : "Star Trek II: The Wrath of Khan",
+				    "year" : 1982,
+				    "type" : "movie"
+			        },
+			        {
+				    "_id" : "tt0796366",
+				    "title" : "Star Trek",
+				    "year" : 2009,
+				    "type" : "movie"
+			        }
+			    ],
+			    {
+			        "ordered": false 
+			    }
+			);
+
+READ: 
+	// simple query
+	db.collection.find( {rated: "PG-13"} ).pretty();
+	// simple query, but a key inside of embedded documents
+	db.collection.find( {"tomato.meter": 100} ).pretty();
+	// simple query indise array(the order of array elements is essential)
+	db.collection.find( {"writers": ["Ethan Cohen", "Joel Cohen"]} ).pretty();
+	// first element of the array
+	db.collection.find( {"actors.0", "Jeff Bridges"} ).pretty();
+
+PROJECTIONS:
+	// return only fields that I want: 1 return, 0 don't
+	db.collection.find( {rated: "PG-13"}, {title:1, _id:0} ).pretty();
+
+COMPARING:
+	// greater then 90
+	db.movieDetails.find({ runtime: { $gt: 90 } }).count();
+	// greater then 90 and less then
+	db.movieDetails.find({ runtime: { $gt: 90, $lt: 120 } }).count();
+	// comparing multiple fields
+	db.movieDetails.find({ "tomato.meter": { $gte: 95 }, runtime: { $gt: 180 } });
+	// not equal
+	db.movieDetails.find({ rated: { $ne: "UNRATED" } }).count();
+	// in
+	db.movieDetails.find({ rated: { $in: ["G", "PG"] } }).pretty();
+
+ELEMENT OPERATORS:
+	// return if the item contains a specific field
+	db.moviesDetails.find({ "tomato.meter": { $exists: true } })
+	// return if the item not contains a specific field
+	db.moviesDetails.find({ "tomato.meter": { $exists: false } })
+	// check the type of field
+	db.moviesScratch.find({ _id: { $type: "string" } })
+
+LOGICAL OPERATORS:
+	// OR
+	db.movieDetails.find(
+		{ $or : 
+			[ { "tomato.meter": { $gt: 99 } }, { "metacritic": { $gt: 95 } } ]
+		})
+
+
+	// AND
+	db.movieDetails.find(
+		{ $and :
+			[ { "metacritic": { $ne: 100 } }, { "metacritic" { $exists: true } } ]
+		})
+
+REGEX:
+	// using regex
+	db.movieDetails.find({ "awards.text": { $regex: /^Won.*/ } }).pretty()
+	db.movieDetails.find({ "awards.text": { $regex: /^Won.*/ } }, { title: 1, "awards": 1, _id: 0}).pretty()
+
+ARRAY OPERATIONS:
+	// must contains all elements of array
+	db.movieDetails.find({ genres: { $all: ["Comedy", "Crime", "Drama"] } }).pretty()
+	// size of array
+	db.movieDetails.find({ countries: { $size: 1 } }).pretty()
+	// array
+	boxOffice: [ { "country": "USA", "revenue": 41.3 },
+	             { "country": "Australia", "revenue": 2.9 },
+	             { "country": "UK", "revenue": 10.1 },
+	             { "country": "Germany", "revenue": 4.3 },
+	             { "country": "France", "revenue": 3.5 } ]
+	// elemMatch
+	db.movieDetails.find({ boxOffice: {$elemMatch: { country: "UK", revenue: { $gt: 15 } } } })
+
+
+
+
+
