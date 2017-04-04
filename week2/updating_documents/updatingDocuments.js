@@ -216,3 +216,21 @@ db.reviews.insertMany([
       reviewer: "Spencer H.",
       text: "The Martian could have been a sad drama film, instead it was a hilarious film with a little bit of drama added to it. The Martian is what everybody wants from a space adventure. Ridley Scott can still make great movies and this is one of his best."}
 ])
+
+
+db.product.update(
+    {name:"iphone" },
+    { $setOnInsert: {"details.camera" : 13} },
+    { upsert: true }
+)
+
+db.product.update(
+    {name:"iphone" },
+    { $setOnInsert: { details: {color:"red"} }}
+)
+
+db.product.update(
+  {name:"iphone" }, 
+  { $set: { details: {color:"blue"} }},
+  { upsert: true }
+)

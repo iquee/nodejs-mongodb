@@ -111,6 +111,39 @@ ARRAY OPERATIONS:
 	// elemMatch
 	db.movieDetails.find({ boxOffice: {$elemMatch: { country: "UK", revenue: { $gt: 15 } } } })
 
+UPDATE :
+	* If upsert is true and no document matches the query criteria, update() inserts a single document. The update creates the new document
+	* If upsert is true and there are documents that match the query criteria, update() performs an update.
+
+	// update procudt collection and add field size in object details.
+	db.product.update({name:"iphone" },{ $set: {"details.size" : 1000} },{ upsert: true })
+
+	// update single field if exist(override). If dont't exist, create one
+	db.movieDetails.updateOne({title: "The Martian"},
+                          { $set: {poster: "http://ia.media-imdb.com/images/M/MV5BMTc2MTQ3MDA1Nl5BMl5BanBnXkFtZTgwODA3OTI4NjE@._V1_SX300.jpg"} })
+	
+	// update array adding new element
+	db.movieDetails.updateOne({title: "The Martian"},
+                          {$push: 
+                          		{ reviews: { 
+                          			rating: 4.5,
+	                           		date: ISODate("2016-01-12T09:00:00Z"),
+	                           		reviewer: "Spencer H.",
+	                           		text: "The Martian could have been a sad drama film, instead it was a hilarious film with a little bit of drama added to it. The Martian is what everybody wants from a space adventure. Ridley Scott can still make great movies and this is one of his best."} } })
+
+	// update array adding multiple elements
+	db.movieDetails.updateOne({title: "The Martian"},
+                          {$push: { reviews:
+                                    { $each: [
+                                        { rating: 0.5,
+                                          date: ISODate("2016-01-12T07:00:00Z"),
+                                          reviewer: "Yabo A.",
+                                          text: "i believe its ...."},
+                                        { rating: 5,
+                                          date: ISODate("2016-01-12T09:00:00Z"),
+                                          reviewer: "Kristina Z.",
+                                          text: "This is a masterpiece...."}] } } } )
+
 
 
 
